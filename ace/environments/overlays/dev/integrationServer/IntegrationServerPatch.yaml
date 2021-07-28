@@ -4,6 +4,7 @@ metadata:
   name: create-customer-details-rest
 spec:
   license:
+    accept: true
     license: L-APEH-BPUCJK
     use: CloudPakForIntegrationNonProduction
   replicas: 3
