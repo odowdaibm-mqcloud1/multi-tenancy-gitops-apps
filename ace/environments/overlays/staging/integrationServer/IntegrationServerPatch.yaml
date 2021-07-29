@@ -3,7 +3,7 @@ kind: IntegrationServer
 metadata:
   name: create-customer-details-rest
 spec:
-  replicas: 3
+  replicas: 2
   pod:
     containers:
       runtime:
