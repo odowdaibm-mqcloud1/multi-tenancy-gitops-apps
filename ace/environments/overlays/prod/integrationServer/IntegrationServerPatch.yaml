@@ -6,7 +6,7 @@ spec:
   license:
     accept: true
     license: L-APEH-BPUCJK
-    use: CloudPakForIntegrationNonProduction
+    use: CloudPakForIntegrationProduction
   replicas: 3
   version: 11.0.0.10-r2
   adminServerSecure: true
