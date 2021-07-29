@@ -13,4 +13,4 @@ spec:
   pod:
     containers:
       runtime:
-        image: image-registry.openshift-image-registry.svc:5000/ci/create-customer-details-rest:348733c3ced04494d93ca888db4c771cf35bad00
+        image: image-registry.openshift-image-registry.svc:5000/ci/create-customer-details-rest:348733c3ced04494d93ca888db4c771cf35bad00test
