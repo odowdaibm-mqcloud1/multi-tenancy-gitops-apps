@@ -1,0 +1,16 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: IntegrationServer
+metadata:
+  name: create-customer-details-rest
+spec:
+  license:
+    accept: true
+    license: L-APEH-BPUCJK
+    use: CloudPakForIntegrationNonProduction
+  replicas: 3
+  version: 11.0.0.10-r2
+  adminServerSecure: true
+  pod:
+    containers:
+      runtime:
+        image: image-registry.openshift-image-registry.svc:5000/ci/create-customer-details-rest:348733c3ced04494d93ca888db4c771cf35bad00
