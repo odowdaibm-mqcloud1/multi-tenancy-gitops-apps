@@ -126,7 +126,7 @@ spec:
     - build-is-image
     taskRef:
       kind: Task
-      name: ibm-gitops-for-ace-carlos
+      name: ibm-gitops-for-ace
 
   workspaces:
   - name: shared-workspace

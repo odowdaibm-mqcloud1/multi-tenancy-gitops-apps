@@ -3,9 +3,9 @@ kind: Task
 metadata:
   name: ibm-gitops-for-ace
   annotations:
-    description: Publishes the helm chart configuration to the provided gitops repo to trigger downstream deployments
-    app.openshift.io/description: Publishes the helm chart configuration to the provided gitops repo to trigger downstream deployments
-    app.openshift.io/vcs-uri: https://github.com/IBM/ibm-garage-tekton-tasks
+    description: Promotes an ACE Integration Server Container Image by writing or opening a PR against gitops repo
+    app.openshift.io/description: Promotes an ACE Integration Server Container Image by writing or opening a PR against gitops repo
+    app.openshift.io/vcs-uri: https://cloud-native-toolkit-demos/multi-tenancy-gitops-apps
     app.openshift.io/vcs-ref: master
   labels:
     version: 0.0.0
