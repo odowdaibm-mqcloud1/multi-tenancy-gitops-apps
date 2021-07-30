@@ -12,13 +12,17 @@ metadata:
 spec:
   params:
     - name: source-env
-      default: "dev"
+      default: ""
     - name: source-yaml
       default: "integrationServer/IntegrationServerPatch.yaml"
     - name: destination-env
-      default: "staging"
+      default: ""
     - name: destination-yaml
       default: "integrationServer/IntegrationServerPatch.yaml"
+    - name: destination-image
+      default: ""
+    - name: git-pr
+      default: "false"
     - name: source-dir
       default: /source
     - name: subdir
@@ -134,8 +138,13 @@ spec:
           if [[ -z "${PROTOCOL}" ]]; then
             PROTOCOL="https"
           fi
-          SOURCE_YAML_FILE="${SUBDIR}/$(params.source-env)/$(params.source-yaml)"
+
           DEST_YAML_FILE="${SUBDIR}/$(params.destination-env)/$(params.destination-yaml)"
+          if [[ -n "$(params.destination-image)" ]]; then
+            DEST_IMAGE_URL="$(params.destination-image)"
+          else
+            SOURCE_YAML_FILE="${SUBDIR}/$(params.source-env)/$(params.source-yaml)"
+          fi
 
           if [[ -z "${GIT_HOST}" ]] || [[ -z "${GIT_ORG}" ]] || [[ -z "${GIT_REPO}" ]]; then
               echo "GitOps repo has not been configured with confimap gitops-repo. Skipping trigger step"
@@ -171,22 +180,20 @@ spec:
           git config user.email "bot@cloudnativetoolkit.dev"
           git config user.name "Cloud Native Toolkit Pipeline"
 
-          if [[ -f "${DEST_YAML_FILE}" ]]; then
-            echo "Destination file ${DEST_YAML_FILE} found"
+
+          if [[ -n "${DEST_IMAGE_URL}" ]]; then
+            echo "Destination file image will be set to ${DEST_IMAGE_URL}"
+          elif [[ -f "${DEST_YAML_FILE}" ]]; then
+            echo "Destination file ${DEST_YAML_FILE} found, file will be updated with contents from ${SOURCE_YAML_FILE}"
             cat "${DEST_YAML_FILE}"
-            IMAGE_URL="$(yq r ${SOURCE_YAML_FILE} spec.pod.containers.runtime.image)"
-            yq w -i ${DEST_YAML_FILE} spec.pod.containers.runtime.image ${IMAGE_URL}
-            echo "Destination file updated with contents from ${SOURCE_YAML_FILE}"
-            cat "${DEST_YAML_FILE}"
+            DEST_IMAGE_URL="$(yq r ${SOURCE_YAML_FILE} spec.pod.containers.runtime.image)"
           else
             echo "Destination file ${DEST_YAML_FILE} not found"
-            echo "Init Destination file with ${SOURCE_YAML_FILE}"
-            DEST_DIR=$(dirname ${DEST_YAML_FILE})
-            mkdir -p ${DEST_DIR}
-            cp ${SOURCE_YAML_FILE} ${DEST_YAML_FILE}
-            cat ${DEST_YAML_FILE}
+            exit 1
           fi
-
+          yq w -i ${DEST_YAML_FILE} spec.pod.containers.runtime.image ${DEST_IMAGE_URL}
+          echo "Destination file updated with contents with image ${DEST_IMAGE_URL}"
+          cat "${DEST_YAML_FILE}"
 
           if [[ $(git status -s | wc -l) -eq 0 ]]; then
             echo "No changes"
@@ -195,9 +202,15 @@ spec:
           git diff
           git add "${SUBDIR}/"
           git commit -m "Cloudnative toolkit commit" --signoff
-          git_version="$(git rev-parse --short HEAD)"
-          git checkout -b cntk-ci-pipeline-${git_version}
-          git push origin cntk-ci-pipeline-${git_version}
 
-          GIT_PUSH_URL="${GIT_PROTOCOL}://api.github.com/repos/${GIT_ORG}/${GIT_REPO}/pulls"
-          curl -u ${GIT_USERNAME}:${GIT_PASSWORD} -d '{"title":"PR to promote to $(params.destination-env) environment","base":"'${GIT_BRANCH}'", "head":"'${GIT_ORG}':cntk-ci-pipeline-'${git_version}'"}' ${GIT_PUSH_URL}
+          if [[ "$(params.git-pr)" == "true" ]]; then
+            git_version="$(git rev-parse --short HEAD)"
+            git checkout -b cntk-ci-pipeline-${git_version}
+            git push origin cntk-ci-pipeline-${git_version}
+
+            GIT_PUSH_URL="${GIT_PROTOCOL}://api.github.com/repos/${GIT_ORG}/${GIT_REPO}/pulls"
+            curl -u ${GIT_USERNAME}:${GIT_PASSWORD} -d '{"title":"PR to promote to $(params.destination-env) environment","base":"'${GIT_BRANCH}'", "head":"'${GIT_ORG}':cntk-ci-pipeline-'${git_version}'"}' ${GIT_PUSH_URL}
+          else
+            echo "Pushing directly to repository"
+            git push -v
+          fi
