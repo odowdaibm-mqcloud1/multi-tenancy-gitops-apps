@@ -163,8 +163,6 @@ spec:
           fi
           set -x
 
-          # TODO REMOVE HARDCODE BRANCH
-          GIT_BRANCH="csantanapr-test"
 
           BRANCH_CMD=""
           if [[ -n "${GIT_BRANCH}" ]]; then
