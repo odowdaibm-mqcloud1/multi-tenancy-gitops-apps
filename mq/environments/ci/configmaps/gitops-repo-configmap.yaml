@@ -9,9 +9,9 @@ metadata:
 data:
   branch: ocp47-2021-2
   host: github.com
-  org: $GIT_ORG
-  owner: $GIT_ORG
+  org: odowdaibm-mqcloud1
+  owner: odowdaibm-mqcloud1
   parentdir: .
   protocol: https
   repo: multi-tenancy-gitops-apps
-  url: https://github.com/$GIT_ORG/multi-tenancy-gitops-apps.git
+  url: https://github.com/odowdaibm-mqcloud1/multi-tenancy-gitops-apps.git
